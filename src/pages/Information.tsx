@@ -19,7 +19,7 @@ const emojis = {
     smile:"😀"
 }
 
-export const Confirmation = () =>{
+export const Information = () =>{
     const navigation = useNavigation();
     const routes = useRoute();
 

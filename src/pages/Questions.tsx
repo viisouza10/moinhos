@@ -6,9 +6,9 @@ import { Button } from '../components/Button';
 import colors from '../styles/colors';
 import fonts from '../styles/fonts';
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { ConfirmationParams } from './Confirmation';
+import { ConfirmationParams } from './Information';
 
-export const UserIdentification = ()=>{
+export const Questions = ()=>{
     const [isFocused,setIsFocused] = useState(false);
     const [isFilled,setIsFilled] = useState(false);
     const [name,setName] = useState<string>();
