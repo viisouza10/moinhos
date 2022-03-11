@@ -9,7 +9,7 @@ import {
     View
 } from 'react-native';
 
-import logoImg from '../assets/logo.png'
+import whiteLogoImg from '../assets/white_logo.png'
 import colors from '../styles/colors';
 
 import fonts from '../styles/fonts';
@@ -34,14 +34,14 @@ export const Welcome = () =>{
     },[])
 
     const handleStart = useCallback(() =>{
-        navigation.navigate("UserIdentification")
+        navigation.navigate("Information")
     },[navigation])
 
     return (
         <View style={style.container}>
             <View style={style.header}>
                 <Image 
-                    source={logoImg} 
+                    source={whiteLogoImg} 
                     style={style.logo}
                     resizeMode="contain"
                 />
@@ -103,7 +103,7 @@ const style = StyleSheet.create({
         color:colors.text_white,
         fontFamily: fonts.heading,
         marginTop:30,
-        width: '90%'
+        width:Dimensions.get('window').width * 0.9,
 
     },
     boxForm:{
@@ -113,7 +113,7 @@ const style = StyleSheet.create({
     button:{
         fontSize:32,
         backgroundColor:colors.primary,
-        width: "90%",        
+        width:Dimensions.get('window').width * 0.8,      
         paddingVertical:10,
         marginTop:"15%"
     },
@@ -127,7 +127,7 @@ const style = StyleSheet.create({
         borderWidth:2,
         borderColor:colors.primary,
         color:colors.heading,
-        width: "90%",
+        width:Dimensions.get('window').width * 0.9,
         fontSize:18,
         marginTop:20,
         padding: 10,

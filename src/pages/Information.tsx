@@ -1,9 +1,12 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback } from 'react';
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import { Button } from '../components/Button';
+import { Dimensions, Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import blueLogoImg from '../assets/blue_logo.png'
+import hospitalImg from '../assets/hospital.png'
+import ambulanceImg from '../assets/ambulance.png'
 import colors from '../styles/colors';
 import fonts from '../styles/fonts';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 export interface ConfirmationParams {
     title:string;
@@ -21,38 +24,55 @@ const emojis = {
 
 export const Information = () =>{
     const navigation = useNavigation();
-    const routes = useRoute();
+    const type:"hospital"|"ambulance" = "ambulance"
 
-    const {title,subtitle,buttonTitle,icon,nextScreen,nextScrenChild} = routes.params as ConfirmationParams
-    
-    
-    const handleMoveOn = useCallback(() =>{       
-    
-        if(nextScrenChild){
-             navigation.navigate(nextScreen,{screen:nextScrenChild})
-        }else{
-            navigation.navigate(nextScreen)
-        }
-    },[nextScreen,nextScrenChild])
+
+    const handleClick = useCallback(() =>{
+        navigation.navigate("Welcome")
+    },[navigation])
+
 
     return (
         <SafeAreaView style={style.container}>
             <View style={style.content}>
-                <Text style={style.emoji}>
-                    {emojis[icon]}
-                </Text>
+                <Image
+                    source={blueLogoImg} 
+                    style={style.logo}
+                    resizeMode="contain"
+                />
+                <Text style={style.subTitle}>Vá para um hospital</Text>
+                {type === "hospital" ? 
+                    (
+                        <>
+                            <Image
+                                source={hospitalImg} 
+                                style={style.infoImage}
+                                resizeMode="contain"
+                            />
+                            <Text style={style.text}>Aconselhamos que á para o hospital mais póximo de você com urgência</Text>
+                        </>
+                    )
+                    :
+                    (
+                        <>
+                            <Image
+                                source={ambulanceImg} 
+                                style={style.infoImage}
+                                resizeMode="contain"
+                            />
+                            <Text style={style.text}>Aconselhamos que chame uma ambulância</Text>
+                                
+                            <TouchableOpacity 
+                                style={style.button} 
+                                activeOpacity={0.7}
+                                onPress={handleClick}
+                            >
+                                <Text style={style.textButton}>entrar</Text>
+                            </TouchableOpacity>
+                        </>
+                    )
+                }
 
-                <Text style={style.title}>
-                    {title}
-                </Text>
-
-                <Text style={style.subtitle}>
-                   {subtitle}
-                </Text>
-
-                <View style={style.footer} >
-                    <Button title={buttonTitle} onPress={handleMoveOn}/>
-                </View>
             </View>
 
         </SafeAreaView>
@@ -62,37 +82,52 @@ export const Information = () =>{
 const style = StyleSheet.create({
     container:{
         flex:1,
-        justifyContent:'space-around',
-        alignItems: 'center'
+        alignItems: 'center',
+        width: "100%"
+        
     },
     content:{
         flex:1,
         alignItems: 'center',
-        justifyContent:"center",
-        width: "100%",
-        padding: 30
+        width: "100%"
+        
     },
-    emoji:{
-        fontSize:78,
+    subTitle:{
+        fontSize:30,
+        color:colors.primary,
+        fontFamily: fonts.heading,
+        marginVertical:60,
+        textAlign:"center",
+        textTransform:"capitalize",
+        width:Dimensions.get('window').width * 0.6,
+        
     },
-    title:{
-        fontSize:22,
+    logo:{
+        width: "40%",
+        height:"20%",
+        marginTop:"15%"
+    },
+    text:{
+        color:colors.text_primary_light,
+        fontSize:24,
+        textAlign:"center",
+        marginTop:30,
+        width:Dimensions.get('window').width * 0.7,
+    },
+    infoImage:{
+        width: "30%"
+    },
+    button:{
+        fontSize:32,
+        backgroundColor:colors.primary,
+        width:Dimensions.get('window').width * 0.8,       
+        paddingVertical:10,
+        marginTop:"15%"
+    },
+    textButton:{
+        color:colors.text_white,
+        textAlign: "center",
         fontFamily:fonts.heading,
-        textAlign: 'center',
-        color:colors.heading,
-        lineHeight:38,
-        marginTop:15
+        fontSize:18,
     },
-    subtitle:{
-        fontFamily:fonts.text,
-        textAlign: 'center',
-        fontSize:17,
-        paddingHorizontal:10,
-        color:colors.heading
-    },
-    footer:{
-        width:"100%",
-        paddingHorizontal: 50,
-        marginTop:20
-    }
 })
