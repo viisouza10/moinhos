@@ -4,6 +4,16 @@ import { useFonts, Rubik_400Regular,Rubik_700Bold } from '@expo-google-fonts/rub
 import AppLoading from 'expo-app-loading';
 import Routes from './src/routes';
 
+
+import Amplify, { Auth } from 'aws-amplify';
+// @ts-ignore
+import awsconfig from './src/aws-exports';
+// @ts-ignore
+import { withAuthenticator } from 'aws-amplify-react-native'
+
+Amplify.configure(awsconfig);
+
+
 const App = () =>{
   let [fontsLoaded] = useFonts({
     Rubik_400Regular,
@@ -22,4 +32,4 @@ const App = () =>{
   )
 }
 
-export default App
+export default withAuthenticator(App, { includeGreetings: true })

@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-moinhos-dev-150614-authRole",
+      "UnauthRoleArn": "arn:aws:iam::431273589520:role/amplify-moinhos-dev-150614-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::431273589520:role/amplify-moinhos-dev-150614-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-moinhos-dev-150614-deployment",
+      "UnauthRoleName": "amplify-moinhos-dev-150614-unauthRole",
+      "StackName": "amplify-moinhos-dev-150614",
+      "StackId": "arn:aws:cloudformation:us-east-1:431273589520:stack/amplify-moinhos-dev-150614/1db7f340-a22f-11ec-921d-0a8396ce1a29",
+      "AmplifyAppId": "dmm6m6uu33c7l"
+    },
+    "categories": {
+      "auth": {
+        "moinhose33fdf39": {}
+      }
+    }
+  }
+}
