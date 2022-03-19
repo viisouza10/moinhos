@@ -9,11 +9,22 @@
       "UnauthRoleName": "amplify-moinhos-dev-150614-unauthRole",
       "StackName": "amplify-moinhos-dev-150614",
       "StackId": "arn:aws:cloudformation:us-east-1:431273589520:stack/amplify-moinhos-dev-150614/1db7f340-a22f-11ec-921d-0a8396ce1a29",
-      "AmplifyAppId": "dmm6m6uu33c7l"
+      "AmplifyAppId": "dmm6m6uu33c7l",
+      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-moinhos-dev-150614-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
     },
     "categories": {
       "auth": {
         "moinhose33fdf39": {}
+      },
+      "function": {
+        "moinhoLambdaApiFunction": {
+          "deploymentBucketName": "amplify-moinhos-dev-150614-deployment",
+          "s3Key": "amplify-builds/moinhoLambdaApiFunction-6b392f796242744a5479-build.zip"
+        },
+        "moinhos2fa25707": {
+          "deploymentBucketName": "amplify-moinhos-dev-150614-deployment",
+          "s3Key": "amplify-builds/moinhos2fa25707-3973415566724e523544-build.zip"
+        }
       }
     }
   }

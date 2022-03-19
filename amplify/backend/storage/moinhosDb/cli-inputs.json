@@ -1,0 +1,14 @@
+{
+  "resourceName": "moinhosDb",
+  "tableName": "responses",
+  "partitionKey": {
+    "fieldName": "id",
+    "fieldType": "number"
+  },
+  "sortKey": {
+    "fieldName": "user",
+    "fieldType": "string"
+  },
+  "gsi": [],
+  "triggerFunctions": []
+}

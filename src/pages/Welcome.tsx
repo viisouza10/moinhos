@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { 
     Dimensions, 
     Image, 
@@ -14,6 +14,10 @@ import colors from '../styles/colors';
 
 import fonts from '../styles/fonts';
 import { useNavigation } from '@react-navigation/core';
+import { Auth, API, graphqlOperation } from 'aws-amplify'; 
+import { createTodo } from '../graphql/mutations';
+
+import { listTodos } from '../graphql/queries';
 
 export const Welcome = () =>{
     const navigation = useNavigation();
@@ -33,8 +37,28 @@ export const Welcome = () =>{
         setEmail(value)
     },[])
 
-    const handleStart = useCallback(() =>{
-        navigation.navigate("Information")
+    useEffect(() => {
+        
+        fetchTodos();
+      }, []);
+      
+      async function fetchTodos() {
+        try {
+          const todoData:any = await API.graphql(graphqlOperation(listTodos));
+          const todos = todoData.data.listTodos.items;
+          console.log({todos});
+          
+        } catch (err) {
+          console.log('Error fetching data');
+        }
+    }
+    const handleStart = useCallback(async () =>{
+        const user   = await Auth.signIn('viisouza10@live.com', 'Paocomovo5@!')
+        
+        
+        const input = { name:"nome" };
+        const result = await API.graphql(graphqlOperation(createTodo, { input }));
+        // navigation.navigate("aut")
     },[navigation])
 
     return (
