@@ -12,20 +12,20 @@ export interface ConfirmationParams {
     title:string;
     subtitle:string;
     buttonTitle:string;
-    icon:"smile" | "hug";
     nextScreen:string;
     nextScrenChild?:string;
 }
 
-const emojis = {
-    hug:"🤗",
-    smile:"😀"
+type Params  = {
+    type: "hospital"|"ambulance"
 }
 
 export const Information = () =>{
-    const navigation = useNavigation();
-    const type:"hospital"|"ambulance" = "ambulance"
+    const route = useRoute();
 
+    const {type} = route.params as Params
+
+    const navigation = useNavigation();
 
     const handleClick = useCallback(() =>{
         navigation.navigate("Welcome")

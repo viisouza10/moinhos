@@ -9,6 +9,7 @@
     "server": "json-server ./src/services/server.json --host 192.168.0.7 --port 3333 --delay 100"
   },
   "dependencies": {
+    "@aws-amplify/cli": "^7.6.25",
     "@expo-google-fonts/rubik": "^0.1.0",
     "@expo/vector-icons": "^12.0.0",
     "@react-native-async-storage/async-storage": "^1.16.1",

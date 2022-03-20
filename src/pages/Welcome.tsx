@@ -2,12 +2,14 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { 
     Dimensions, 
     Image, 
+    KeyboardAvoidingView, 
     StyleSheet, 
     Text, 
     TextInput,
     TouchableOpacity,
     View
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import whiteLogoImg from '../assets/white_logo.png'
 import colors from '../styles/colors';
@@ -22,47 +24,77 @@ import { listTodos } from '../graphql/queries';
 export const Welcome = () =>{
     const navigation = useNavigation();
 
-    const [isFocused,setIsFocused] = useState(false);
-    const [isFilled,setIsFilled] = useState(false);
-    const [email,setEmail] = useState<string>();
-    const [password,setPassword] = useState<string>();
+    const [error,setError] = useState<string>();
+    const [isLoading,setIsLoading] = useState(false);
+
+    const [email,setEmail] = useState<string>('');
+    const [password,setPassword] = useState<string>('');
 
     const handleInputChangeEmail = useCallback((value:string)=>{
-        setIsFilled(!!value)
         setEmail(value)
     },[])
 
     const handleInputChangePassword = useCallback((value:string)=>{
-        setIsFilled(!!value)
-        setEmail(value)
+        setPassword(value)
     },[])
 
     useEffect(() => {
-        
-        fetchTodos();
+        // fetchTodos();
+        validateHasJwtToken();
       }, []);
-      
-      async function fetchTodos() {
-        try {
-          const todoData:any = await API.graphql(graphqlOperation(listTodos));
-          const todos = todoData.data.listTodos.items;
-          console.log({todos});
-          
-        } catch (err) {
-          console.log('Error fetching data');
+
+      const validateHasJwtToken = async () =>{
+        const token = await AsyncStorage.getItem("@moinhos:jwt");
+        if(token){
+            navigation.navigate("Information",{
+                type:"ambulance"
+            })
         }
+        setError("Usuário e senha incorretos")
+      }
+      
+    //   async function fetchTodos() {
+    //     try {
+    //       const todoData:any = await API.graphql(graphqlOperation(listTodos));
+    //       const todos = todoData.data.listTodos.items;
+    //       console.log({todos});
+          
+    //     } catch (err) {
+    //       console.log('Error fetching data');
+    //     }
+    // }
+
+    type DataAuth = {
+        email:string;
+        password:string
     }
-    const handleStart = useCallback(async () =>{
-        const user   = await Auth.signIn('viisouza10@live.com', 'Paocomovo5@!')
+
+    const handleStart = useCallback(async ({email,password}:DataAuth) =>{
+        setError("")
+        if(!email){
+            setError("Digite o e-mail")
+            return false
+        }
         
+        if(!password){
+            setError("Digite a senha")
+            return false
+        }
         
-        const input = { name:"nome" };
-        const result = await API.graphql(graphqlOperation(createTodo, { input }));
-        // navigation.navigate("aut")
+        setIsLoading(true)
+        const user   = await Auth.signIn(email,password)
+        // const user   = await Auth.signIn('viisouza10@live.com', 'Paocomovo5@!')
+        const jwtToken = user.signInUserSession.accessToken.jwtToken
+        console.log("jwt",jwtToken)
+        await AsyncStorage.setItem("@moinhos:jwt",jwtToken);
+        
+        setIsLoading(false)
+        navigation.navigate("Information")
     },[navigation])
 
     return (
-        <View style={style.container}>
+
+        <KeyboardAvoidingView behavior="position" enabled >
             <View style={style.header}>
                 <Image 
                     source={whiteLogoImg} 
@@ -92,19 +124,17 @@ export const Welcome = () =>{
                 <TouchableOpacity 
                     style={style.button} 
                     activeOpacity={0.7}
-                    onPress={handleStart}
+                    onPress={() => handleStart({email,password})}
                 >
-                    <Text style={style.textButton}>entrar</Text>
+                    <Text style={style.textButton}>{isLoading ? "aguarde..." : " entrar"}</Text>
                 </TouchableOpacity>
+                <Text style={style.textError}>{error}</Text>
             </View>
-        </View>
+        </KeyboardAvoidingView>
     )
 }
 
 const style = StyleSheet.create({
-    container:{
-        flex:1,
-    },
     header:{
         height: "45%",
         backgroundColor: colors.primary,
@@ -112,18 +142,18 @@ const style = StyleSheet.create({
         alignItems: "center",
     },
     title:{
-        fontSize:50,
+        fontSize:45,
         color:colors.primary,
-        marginTop:"15%",
+        marginTop:"5%",
         marginLeft:15,
         fontFamily:fonts.text,
     },
     logo:{
-        width:Dimensions.get('window').width * 0.5,
-        height:Dimensions.get('window').width * 0.5,
+        width:Dimensions.get('window').width * 0.3,
+        height:Dimensions.get('window').width * 0.3,
     },
     subTitle:{
-        fontSize:30,
+        fontSize:25,
         color:colors.text_white,
         fontFamily: fonts.heading,
         marginTop:30,
@@ -132,7 +162,7 @@ const style = StyleSheet.create({
     },
     boxForm:{
         alignItems: "center",
-        marginTop: "10%",
+        marginTop: "5%",
     },
     button:{
         fontSize:32,
@@ -156,4 +186,8 @@ const style = StyleSheet.create({
         marginTop:20,
         padding: 10,
     },
+    textError:{
+        color:colors.red,
+        marginTop:"5%"
+    }
 })
