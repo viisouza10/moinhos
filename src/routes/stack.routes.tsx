@@ -27,7 +27,7 @@ const AppRoutes:React.FC = () => {
                 backgroundColor:colors.white
             }
             
-        }} initialRouteName="Welcome">
+        }} initialRouteName="Questions">
             <stackRoutes.Screen 
                 name="Welcome"
                 component={Welcome}

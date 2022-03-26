@@ -9,7 +9,7 @@ type Todo
     rules: [
       {
         allow: owner
-        ownerField: "owner"
+        ownerField: "cpf"
         operations: [create, update, delete, read]
       }
       { allow: groups, groups: ["Doctors"], operations: [read] }
@@ -18,5 +18,5 @@ type Todo
   id: ID!
   name: String!
   description: String
-  owner: String
+  cpf: String
 }
