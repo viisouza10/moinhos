@@ -16,10 +16,11 @@ import colors from '../styles/colors';
 
 import fonts from '../styles/fonts';
 import { useNavigation } from '@react-navigation/core';
-import { Auth, API, graphqlOperation } from 'aws-amplify'; 
-import { createTodo } from '../graphql/mutations';
-
+import { Amplify,Auth, API, graphqlOperation } from 'aws-amplify'; 
+// import { createTodo } from '../graphql/mutations';
+import { GRAPHQL_AUTH_MODE } from '@aws-amplify/api'
 import { listTodos } from '../graphql/queries';
+
 
 export const Welcome = () =>{
     const navigation = useNavigation();
@@ -39,30 +40,38 @@ export const Welcome = () =>{
     },[])
 
     useEffect(() => {
-        // fetchTodos();
-        validateHasJwtToken();
+        fetchTodos();
+        // validateHasJwtToken();
+        
       }, []);
 
       const validateHasJwtToken = async () =>{
         const token = await AsyncStorage.getItem("@moinhos:jwt");
         if(token){
-            navigation.navigate("Information",{
+            navigation.navigate("Questions",{
                 type:"ambulance"
             })
         }
         setError("Usuário e senha incorretos")
       }
       
-    //   async function fetchTodos() {
-    //     try {
-    //       const todoData:any = await API.graphql(graphqlOperation(listTodos));
-    //       const todos = todoData.data.listTodos.items;
-    //       console.log({todos});
+      async function fetchTodos() {
+          const user = await Auth.currentSession()
+          console.log(user);
           
-    //     } catch (err) {
-    //       console.log('Error fetching data');
-    //     }
-    // }
+          const todoData:any = await API.graphql({
+              query:listTodos,
+              authMode:GRAPHQL_AUTH_MODE.AMAZON_COGNITO_USER_POOLS
+          });
+        //   console.lo
+          const todos = todoData.data.listTodos.items;
+          console.log({todos});
+          
+        // } catch (err) {
+        //     console.log(err)
+        //   console.log('Error fetching data');
+        // }
+    }
 
     type DataAuth = {
         email:string;
@@ -83,13 +92,13 @@ export const Welcome = () =>{
         
         setIsLoading(true)
         const user   = await Auth.signIn(email,password)
-        // const user   = await Auth.signIn('viisouza10@live.com', 'Paocomovo5@!')
+        
         const jwtToken = user.signInUserSession.accessToken.jwtToken
         console.log("jwt",jwtToken)
         await AsyncStorage.setItem("@moinhos:jwt",jwtToken);
         
         setIsLoading(false)
-        navigation.navigate("Information")
+        navigation.navigate("Questions")
     },[navigation])
 
     return (

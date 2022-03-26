@@ -1,15 +1,13 @@
 {
   "auth": {
-    "moinhose33fdf39": {
+    "moinhosapi02583481": {
       "service": "Cognito",
       "providerPlugin": "awscloudformation",
       "dependsOn": [],
       "customAuth": false,
       "frontendAuthConfig": {
         "socialProviders": [],
-        "usernameAttributes": [
-          "EMAIL"
-        ],
+        "usernameAttributes": [],
         "signupAttributes": [
           "EMAIL"
         ],
@@ -27,40 +25,8 @@
       }
     }
   },
-  "storage": {
-    "moinhosDb": {
-      "service": "DynamoDB",
-      "providerPlugin": "awscloudformation"
-    }
-  },
-  "function": {
-    "moinhoLambdaApiFunction": {
-      "build": true,
-      "providerPlugin": "awscloudformation",
-      "service": "Lambda",
-      "dependsOn": [
-        {
-          "category": "storage",
-          "resourceName": "moinhosDb",
-          "attributes": [
-            "Name",
-            "Arn"
-          ],
-          "attributeEnvMap": {
-            "Name": "TABLE_NAME",
-            "Arn": "TABLE_ARN"
-          }
-        }
-      ]
-    },
-    "moinhos2fa25707": {
-      "build": true,
-      "providerPlugin": "awscloudformation",
-      "service": "Lambda"
-    }
-  },
   "api": {
-    "moinhos": {
+    "moinhosapi": {
       "service": "AppSync",
       "providerPlugin": "awscloudformation",
       "output": {
@@ -75,7 +41,7 @@
             {
               "authenticationType": "AMAZON_COGNITO_USER_POOLS",
               "userPoolConfig": {
-                "userPoolId": "authmoinhose33fdf39"
+                "userPoolId": "authmoinhosapi02583481"
               }
             }
           ]

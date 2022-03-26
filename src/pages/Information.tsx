@@ -93,7 +93,7 @@ const style = StyleSheet.create({
         
     },
     subTitle:{
-        fontSize:30,
+        fontSize:25,
         color:colors.primary,
         fontFamily: fonts.heading,
         marginVertical:60,
