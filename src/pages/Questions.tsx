@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import React from 'react';
+import React, { useState } from 'react';
 import { Dimensions, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
 import colors from '../styles/colors';
 import fonts from '../styles/fonts';
@@ -37,8 +37,77 @@ type Questions = {
 export const Questions = () =>{
     const navigation = useNavigation();
 
+    
     const saveData = (values:Questions) => {
+        const {scoreValidate , ambulance} = calculate(values)
+        if(ambulance){
+            navigation.navigate("Information",{
+                type:"ambulance"
+            })
+        }else{
+            navigation.navigate("Information",{
+                type:"hospital"
+            }) 
+        }
         console.log(values)
+        console.log(scoreValidate)
+    }
+
+    const calculate = (values:Questions):{scoreValidate:number,ambulance:boolean} =>{
+        const {
+            pressure,
+            saturation,
+            temperature,
+            headache,
+            breath,
+            chestPain,
+            abdomen
+        } = values;
+
+        let scoreValidate = 0;
+
+        // pressao
+        if(pressure?.bigger >= 14 && pressure.minor <= 8) scoreValidate += 10
+
+        // saturacao
+        if(saturation < 95) scoreValidate += 10
+        
+        // temperatura
+        if(temperature > 38) scoreValidate += 3
+        if(temperature > 37.8 && temperature <= 38) scoreValidate += 2
+        
+        // dor de cabeca
+        if(headache?.nivel === "Baixa") scoreValidate += 1
+        if(headache?.nivel === "Moderada") scoreValidate += 2
+        if(headache?.nivel === "Dor intensa") scoreValidate += 3
+
+        // dificuldade em respirar
+        if(breath?.option === "sim")scoreValidate += 2
+
+        // dor no peito
+        if(chestPain?.option === "sim")scoreValidate += 2
+            
+        if(chestPain?.nivel === "Baixa") scoreValidate += 1
+        if(chestPain?.nivel === "Moderada") scoreValidate += 2
+        if(chestPain?.nivel === "Dor intensa") scoreValidate += 3
+
+        if(chestPain?.description === "Irradiação para o braço esquerdo, mandíbula ou para as costas") scoreValidate += 4
+        if(chestPain?.description === "Pressão / aperto por esforço ou estresse emocional") scoreValidate += 3
+        if(chestPain?.description === "Dor acompanhada de suores, falta de ar, palidez, vômitos") scoreValidate += 4
+        if(chestPain?.description === "Dor de curta duração bem localizada") scoreValidate += 4
+
+        // dor no abdomen
+        if(abdomen?.option === "sim") scoreValidate += 2
+        if(abdomen?.nivel === "Baixa") scoreValidate += 1
+        if(abdomen?.nivel === "Moderada") scoreValidate += 2
+        if(abdomen?.nivel === "Dor intensa") scoreValidate += 3
+     
+        if(abdomen?.option === "sim") scoreValidate += 1
+
+        return {
+            scoreValidate,
+            ambulance:scoreValidate >= 10
+        }
     }
 
     return (
@@ -74,7 +143,7 @@ export const Questions = () =>{
                                 <Text style={style.textBoxInput}>Caso tenha como medir informe a sua saturação</Text>
                                 <TextInput
                                     keyboardType='number-pad'
-                                    placeholder="saturação"
+                                    placeholder="saturação %"
                                     onChangeText={handleChange('saturation')}
                                     onBlur={handleBlur('saturation')}
                                     style={style.input}
