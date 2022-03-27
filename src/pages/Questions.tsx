@@ -1,12 +1,16 @@
-import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import React, {  useEffect, useState } from 'react';
 import { Dimensions, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
 import colors from '../styles/colors';
 import fonts from '../styles/fonts';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { Formik } from 'formik';
+import { API } from 'aws-amplify';
+import { GRAPHQL_AUTH_MODE } from '@aws-amplify/api-graphql';
+import { createTodo } from '../graphql/mutations';
+import { getTodo } from '../graphql/queries';
 
-type Questions = {
+export type Questions = {
     abdomen: {
         nivel: string,
         option: "sim"| "não",
@@ -34,12 +38,56 @@ type Questions = {
     temperature: number,
 }
 
+type Params  = {
+    id: string
+}
+
 export const Questions = () =>{
     const navigation = useNavigation();
+    const [showPatient,setShowPatient] = useState(false)
+    const [valuesPatiente,setValuesPatient] = useState<Questions>({} as Questions)
+    const route = useRoute();
 
-    
-    const saveData = (values:Questions) => {
+    const { id } = route.params as Params
+
+    useEffect(() =>{
+        if(id){
+            setShowPatient(true)
+            getTodoPatient(id)
+        }
+
+    },[id])
+
+    const getTodoPatient = async(idPatient:string)=>{
+        const todoData:any = await API.graphql({
+            query:getTodo,
+            authMode:GRAPHQL_AUTH_MODE.AMAZON_COGNITO_USER_POOLS,
+            variables:{id:idPatient}
+        });
+        
+        const item = todoData.data.getTodo;
+
+        setValuesPatient({...item.values})
+
+    }
+
+    const setField = (handle:() =>void) =>{
+        if(!showPatient){
+            handle()
+        }
+    }
+
+
+    const saveData = async(values:Questions) => {
         const {scoreValidate , ambulance} = calculate(values)
+
+        const data = {
+            values,
+            scoreValidate
+        }  
+
+        await API.graphql({ query: createTodo, variables: {input: data}, authMode:GRAPHQL_AUTH_MODE.AMAZON_COGNITO_USER_POOLS});
+
         if(ambulance){
             navigation.navigate("Information",{
                 type:"ambulance"
@@ -49,8 +97,6 @@ export const Questions = () =>{
                 type:"hospital"
             }) 
         }
-        console.log(values)
-        console.log(scoreValidate)
     }
 
     const calculate = (values:Questions):{scoreValidate:number,ambulance:boolean} =>{
@@ -113,7 +159,8 @@ export const Questions = () =>{
     return (
         <SafeAreaView style={style.container}>
             <Formik
-                initialValues={{} as Questions}
+                initialValues={valuesPatiente}
+                enableReinitialize
                 onSubmit={values => saveData(values)}
             >
             {({ handleChange, handleBlur, handleSubmit,  values,setFieldValue }) => (
@@ -125,10 +172,13 @@ export const Questions = () =>{
                             <View style={style.boxInput}>
                                 <Text style={style.textBoxInput}>Caso tenha como medir informe a sua pressão arterial?</Text>
                                 <TextInput
+                                
                                     keyboardType='number-pad'
                                     placeholder="maior"
                                     onChangeText={handleChange('pressure.bigger')}
                                     onBlur={handleBlur('pressure.bigger')}
+                                    value={values?.pressure?.bigger}
+                                    editable={!showPatient}
                                     style={style.input}
                                 />
                                 <TextInput
@@ -137,6 +187,8 @@ export const Questions = () =>{
                                     onChangeText={handleChange('pressure.minor')}
                                     onBlur={handleBlur('pressure.minor')}
                                     style={style.input}
+                                    value={values?.pressure?.minor}
+                                    editable={!showPatient}
                                 />
                             </View>
                             <View style={style.boxInput}>
@@ -147,6 +199,8 @@ export const Questions = () =>{
                                     onChangeText={handleChange('saturation')}
                                     onBlur={handleBlur('saturation')}
                                     style={style.input}
+                                    value={values?.saturation}
+                                    editable={!showPatient}
                                 />
                             </View>
                             <View style={style.boxInput}>
@@ -159,6 +213,8 @@ export const Questions = () =>{
                                     onChangeText={handleChange('temperature')}
                                     onBlur={handleBlur('temperature')}
                                     style={style.input}
+                                    value={values?.temperature}
+                                    editable={!showPatient}
                                 />
                             </View>
                             <View style={style.boxInput}>
@@ -168,13 +224,14 @@ export const Questions = () =>{
                                 <View style={style.yesNoQuestion}>
                                     <TouchableOpacity 
                                         style={style.buttonYesNoQuestion}
-                                        onPress={() => setFieldValue("headache.option","não")}
+                                        onPress={() => setField(() => setFieldValue("headache.option","não"))}
+                                        // onPress={() => setField(() =>setFieldValue("headache.option","não"))}
                                     >
                                         <Text style={[style.textYesNoQuestion,values?.headache?.option === "não" && style.active]}>Não</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity 
                                         style={style.buttonYesNoQuestion}
-                                        onPress={() => setFieldValue("headache.option","sim")}
+                                        onPress={() => setField(() => setFieldValue("headache.option","sim"))}
                                     >
                                         <Text style={[style.textYesNoQuestion,values?.headache?.option === "sim" && style.active]}>Sim</Text>
                                     </TouchableOpacity>
@@ -182,19 +239,19 @@ export const Questions = () =>{
                                 <View style={style.boxMultOption}>
                                     <TouchableOpacity 
                                         style={style.nivelOption}
-                                        onPress={() => setFieldValue("headache.nivel","Baixa")}
+                                        onPress={() => setField(() => setFieldValue("headache.nivel","Baixa"))}
                                     >
                                         <Text style={values?.headache?.nivel === "Baixa" && style.active}>Baixa</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity 
                                         style={style.nivelOption}
-                                        onPress={() => setFieldValue("headache.nivel","Moderada")}
+                                        onPress={() => setField(() => setFieldValue("headache.nivel","Moderada"))}
                                     >
                                         <Text  style={values?.headache?.nivel === "Moderada" && style.active}>Moderada</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity 
                                         style={style.nivelOption}
-                                        onPress={() => setFieldValue("headache.nivel","Dor intensa")}
+                                        onPress={() => setField(() => setFieldValue("headache.nivel","Dor intensa"))}
                                     >
                                         <Text style={values?.headache?.nivel === "Dor intensa" && style.active}>Dor intensa</Text>
                                     </TouchableOpacity>
@@ -207,13 +264,13 @@ export const Questions = () =>{
                                 <View style={style.yesNoQuestion}>
                                     <TouchableOpacity 
                                         style={style.buttonYesNoQuestion}
-                                        onPress={() => setFieldValue("breath.option","não")}
+                                        onPress={() => setField(() => setFieldValue("breath.option","não"))}
                                     >
                                         <Text style={[style.textYesNoQuestion,values?.breath?.option === "não" && style.active]}>Não</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity 
                                         style={style.buttonYesNoQuestion}
-                                        onPress={() => setFieldValue("breath.option","sim")}
+                                        onPress={() => setField(() => setFieldValue("breath.option","sim"))}
                                     >
                                         <Text style={[style.textYesNoQuestion,values?.breath?.option === "sim" && style.active]}>Sim</Text>
                                     </TouchableOpacity>
@@ -226,13 +283,13 @@ export const Questions = () =>{
                                 <View style={style.yesNoQuestion}>
                                     <TouchableOpacity 
                                         style={style.buttonYesNoQuestion}
-                                        onPress={() => setFieldValue("chestPain.option","não")}
+                                        onPress={() => setField(() => setFieldValue("chestPain.option","não"))}
                                     >
                                         <Text style={[style.textYesNoQuestion,values?.chestPain?.option === "não" && style.active]}>Não</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity 
                                         style={style.buttonYesNoQuestion}
-                                        onPress={() => setFieldValue("chestPain.option","sim")}
+                                        onPress={() => setField(() => setFieldValue("chestPain.option","sim"))}
                                     >
                                         <Text style={[style.textYesNoQuestion,values?.chestPain?.option === "sim" && style.active]}>Sim</Text>
                                     </TouchableOpacity>
@@ -243,19 +300,19 @@ export const Questions = () =>{
                                 <View style={style.boxMultOption}>
                                     <TouchableOpacity 
                                         style={style.nivelOption}
-                                        onPress={() => setFieldValue("chestPain.nivel","Baixa")}
+                                        onPress={() => setField(() => setFieldValue("chestPain.nivel","Baixa"))}
                                     >
                                         <Text style={values?.chestPain?.nivel === "Baixa" && style.active}>Baixa</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity 
                                         style={style.nivelOption}
-                                        onPress={() => setFieldValue("chestPain.nivel","Moderada")}
+                                        onPress={() => setField(() => setFieldValue("chestPain.nivel","Moderada"))}
                                     >
                                         <Text  style={values?.chestPain?.nivel === "Moderada" && style.active}>Moderada</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity 
                                         style={style.nivelOption}
-                                        onPress={() => setFieldValue("chestPain.nivel","Dor intensa")}
+                                        onPress={() => setField(() => setFieldValue("chestPain.nivel","Dor intensa"))}
                                     >
                                         <Text style={values?.chestPain?.nivel === "Dor intensa" && style.active}>Dor intensa</Text>
                                     </TouchableOpacity>
@@ -266,7 +323,7 @@ export const Questions = () =>{
                                 <View style={style.boxMultOption}>
                                     <TouchableOpacity 
                                         style={style.nivelOption}
-                                        onPress={() => setFieldValue("chestPain.description","Irradiação para o braço esquerdo, mandíbula ou para as costas")}
+                                        onPress={() => setField(() => setFieldValue("chestPain.description","Irradiação para o braço esquerdo, mandíbula ou para as costas"))}
                                     >
                                         <Text style={values?.chestPain?.description === "Irradiação para o braço esquerdo, mandíbula ou para as costas" && style.active}>
                                             Irradiação para o braço esquerdo, mandíbula ou para as costas
@@ -274,7 +331,7 @@ export const Questions = () =>{
                                     </TouchableOpacity>
                                     <TouchableOpacity 
                                         style={style.nivelOption}
-                                        onPress={() => setFieldValue("chestPain.description","Pressão / aperto por esforço ou estresse emocional")}
+                                        onPress={() => setField(() => setFieldValue("chestPain.description","Pressão / aperto por esforço ou estresse emocional"))}
                                     >
                                         <Text style={values?.chestPain?.description === "Pressão / aperto por esforço ou estresse emocional" && style.active}>
                                             Pressão / aperto por esforço ou estresse emocional
@@ -282,7 +339,7 @@ export const Questions = () =>{
                                     </TouchableOpacity>
                                     <TouchableOpacity 
                                         style={style.nivelOption}
-                                        onPress={() => setFieldValue("chestPain.description","Irradiação para o braço esquerdo, mandíbula ou para as costas Pressão / aperto por esforço ou estresse emocional Dor acompanhada de suores, falta de ar, palidez, vômitos Dor de curta duração bem localizada")}
+                                        onPress={() => setField(() => setFieldValue("chestPain.description","Irradiação para o braço esquerdo, mandíbula ou para as costas Pressão / aperto por esforço ou estresse emocional Dor acompanhada de suores, falta de ar, palidez, vômitos Dor de curta duração bem localizada"))}
                                     >
                                         <Text style={values?.chestPain?.description === "Irradiação para o braço esquerdo, mandíbula ou para as costas Pressão / aperto por esforço ou estresse emocional Dor acompanhada de suores, falta de ar, palidez, vômitos Dor de curta duração bem localizada" && style.active}>
                                             Irradiação para o braço esquerdo, mandíbula ou para as costas
@@ -300,13 +357,13 @@ export const Questions = () =>{
                                 <View style={style.yesNoQuestion}>
                                     <TouchableOpacity 
                                         style={style.buttonYesNoQuestion}
-                                        onPress={() => setFieldValue("abdomen.option","não")}
+                                        onPress={() => setField(() => setFieldValue("abdomen.option","não"))}
                                     >
                                         <Text style={[style.textYesNoQuestion,values?.abdomen?.option === "não" && style.active]}>Não</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity 
                                         style={style.buttonYesNoQuestion}
-                                        onPress={() => setFieldValue("abdomen.option","sim")}
+                                        onPress={() => setField(() => setFieldValue("abdomen.option","sim"))}
                                     >
                                         <Text style={[style.textYesNoQuestion,values?.abdomen?.option === "sim" && style.active]}>Sim</Text>
                                     </TouchableOpacity>
@@ -314,19 +371,19 @@ export const Questions = () =>{
                                 <View style={style.boxMultOption}>
                                 <TouchableOpacity 
                                         style={style.nivelOption}
-                                        onPress={() => setFieldValue("abdomen.nivel","Baixa")}
+                                        onPress={() => setField(() => setFieldValue("abdomen.nivel","Baixa"))}
                                     >
                                         <Text style={values?.abdomen?.nivel === "Baixa" && style.active}>Baixa</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity 
                                         style={style.nivelOption}
-                                        onPress={() => setFieldValue("abdomen.nivel","Moderada")}
+                                        onPress={() => setField(() => setFieldValue("abdomen.nivel","Moderada"))}
                                     >
                                         <Text style={values?.abdomen?.nivel === "Moderada" && style.active}>Moderada</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity 
                                         style={style.nivelOption}
-                                        onPress={() => setFieldValue("abdomen.nivel","Dor intensa")}
+                                        onPress={() => setField(() => setFieldValue("abdomen.nivel","Dor intensa"))}
                                     >
                                         <Text style={values?.abdomen?.nivel === "Dor intensa" && style.active}>Dor intensa</Text>
                                     </TouchableOpacity>
@@ -339,13 +396,13 @@ export const Questions = () =>{
                                 <View style={style.yesNoQuestion}>
                                 <TouchableOpacity 
                                         style={style.buttonYesNoQuestion}
-                                        onPress={() => setFieldValue("backPain.option","não")}
+                                        onPress={() => setField(() => setFieldValue("backPain.option","não"))}
                                     >
                                         <Text style={[style.textYesNoQuestion,values?.backPain?.option === "não" && style.active]}>Não</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity 
                                         style={style.buttonYesNoQuestion}
-                                        onPress={() => setFieldValue("backPain.option","sim")}
+                                        onPress={() => setField(() => setFieldValue("backPain.option","sim"))}
                                     >
                                         <Text style={[style.textYesNoQuestion,values?.backPain?.option === "sim" && style.active]}>Sim</Text>
                                     </TouchableOpacity>
@@ -353,15 +410,17 @@ export const Questions = () =>{
                             </View>
                         </View>
                     </ScrollView>
-                    <View style={style.footer}>
-                        <TouchableOpacity 
-                            style={style.button} 
-                            activeOpacity={0.7}
-                            onPress={() => handleSubmit()}
-                        >
-                            <Text style={style.textButton}>iniciar atendimento</Text>
-                        </TouchableOpacity>
-                    </View>
+                    {!showPatient && (
+                        <View style={style.footer}>
+                            <TouchableOpacity 
+                                style={style.button} 
+                                activeOpacity={0.7}
+                                onPress={() => handleSubmit()}
+                                >
+                                <Text style={style.textButton}>iniciar atendimento</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
                 </>
             )}
             </Formik>

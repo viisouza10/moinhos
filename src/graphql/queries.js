@@ -5,9 +5,35 @@ export const getTodo = /* GraphQL */ `
   query GetTodo($id: ID!) {
     getTodo(id: $id) {
       id
-      name
-      description
-      owner
+      cpf
+      values {
+        abdomen {
+          nivel
+          option
+        }
+        backPain {
+          option
+        }
+        breath {
+          option
+        }
+        chestPain {
+          description
+          nivel
+          option
+        }
+        headache {
+          nivel
+          option
+        }
+        pressure {
+          bigger
+          minor
+        }
+        saturation
+        temperature
+      }
+      scoreValidate
       createdAt
       updatedAt
     }
@@ -23,9 +49,8 @@ export const listTodos = /* GraphQL */ `
     listTodos(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        name
-        description
-        owner
+        cpf
+        scoreValidate
         createdAt
         updatedAt
       }

@@ -2,36 +2,45 @@
 // this is an auto generated file. This will be overwritten
 
 export const onCreateTodo = /* GraphQL */ `
-  subscription OnCreateTodo($owner: String) {
-    onCreateTodo(owner: $owner) {
+  subscription OnCreateTodo($cpf: String) {
+    onCreateTodo(cpf: $cpf) {
       id
-      name
-      description
-      owner
+      cpf
+      values {
+        saturation
+        temperature
+      }
+      scoreValidate
       createdAt
       updatedAt
     }
   }
 `;
 export const onUpdateTodo = /* GraphQL */ `
-  subscription OnUpdateTodo($owner: String) {
-    onUpdateTodo(owner: $owner) {
+  subscription OnUpdateTodo($cpf: String) {
+    onUpdateTodo(cpf: $cpf) {
       id
-      name
-      description
-      owner
+      cpf
+      values {
+        saturation
+        temperature
+      }
+      scoreValidate
       createdAt
       updatedAt
     }
   }
 `;
 export const onDeleteTodo = /* GraphQL */ `
-  subscription OnDeleteTodo($owner: String) {
-    onDeleteTodo(owner: $owner) {
+  subscription OnDeleteTodo($cpf: String) {
+    onDeleteTodo(cpf: $cpf) {
       id
-      name
-      description
-      owner
+      cpf
+      values {
+        saturation
+        temperature
+      }
+      scoreValidate
       createdAt
       updatedAt
     }

@@ -3,6 +3,37 @@
 input AMPLIFY {
   globalAuthRule: AuthRule = { allow: public }
 } # FOR TESTING ONLY!
+type OptionAndNivel {
+  nivel: String
+  option: String
+}
+
+type Option {
+  option: String
+}
+
+type Internsity {
+  description: String
+  nivel: String
+  option: String
+}
+
+type Pressure {
+  bigger: String
+  minor: String
+}
+
+type Values {
+  abdomen: OptionAndNivel
+  backPain: Option
+  breath: Option
+  chestPain: Internsity
+  headache: OptionAndNivel
+  pressure: Pressure
+  saturation: String
+  temperature: String
+}
+
 type Todo
   @model
   @auth(
@@ -16,7 +47,7 @@ type Todo
     ]
   ) {
   id: ID!
-  name: String!
-  description: String
   cpf: String
+  values: Values
+  scoreValidate: Int
 }

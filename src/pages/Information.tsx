@@ -1,12 +1,10 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback } from 'react';
 import { Dimensions, Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import blueLogoImg from '../assets/blue_logo.png'
 import hospitalImg from '../assets/hospital.png'
 import ambulanceImg from '../assets/ambulance.png'
 import colors from '../styles/colors';
 import fonts from '../styles/fonts';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 
 export interface ConfirmationParams {
     title:string;
@@ -25,50 +23,31 @@ export const Information = () =>{
 
     const {type} = route.params as Params
 
-    const navigation = useNavigation();
-
-    const handleClick = useCallback(() =>{
-        navigation.navigate("Welcome")
-    },[navigation])
-
-
     return (
         <SafeAreaView style={style.container}>
             <View style={style.content}>
-                <Image
-                    source={blueLogoImg} 
-                    style={style.logo}
-                    resizeMode="contain"
-                />
-                <Text style={style.subTitle}>Vá para um hospital</Text>
                 {type === "hospital" ? 
                     (
                         <>
+                            <Text style={style.subTitle}>Vá para um hospital</Text>
                             <Image
                                 source={hospitalImg} 
                                 style={style.infoImage}
                                 resizeMode="contain"
                             />
-                            <Text style={style.text}>Aconselhamos que á para o hospital mais póximo de você com urgência</Text>
+                            <Text style={style.text}>Aconselhamos que vá para o hospital mais próximo de você com urgência</Text>
                         </>
                     )
                     :
                     (
                         <>
+                            <Text style={style.subTitle}>Chame uma ambulância</Text>
                             <Image
                                 source={ambulanceImg} 
                                 style={style.infoImage}
                                 resizeMode="contain"
                             />
                             <Text style={style.text}>Aconselhamos que chame uma ambulância</Text>
-                                
-                            <TouchableOpacity 
-                                style={style.button} 
-                                activeOpacity={0.7}
-                                onPress={handleClick}
-                            >
-                                <Text style={style.textButton}>entrar</Text>
-                            </TouchableOpacity>
                         </>
                     )
                 }

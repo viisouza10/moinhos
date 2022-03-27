@@ -1,5 +1,5 @@
 import React from 'react';
-import {  StatusBar } from 'react-native';
+import {  StatusBar, StyleSheet } from 'react-native';
 import { useFonts, Rubik_400Regular,Rubik_700Bold } from '@expo-google-fonts/rubik';
 import AppLoading from 'expo-app-loading';
 import Routes from './src/routes';
@@ -9,6 +9,11 @@ import awsconfig from './aws-exports';
 // @ts-ignore
 import { withAuthenticator } from 'aws-amplify-react-native'
 
+
+import {
+  AmplifyTheme,
+  Localei18n
+} from './src/components'
 
 Amplify.configure({
   ...awsconfig,
@@ -30,10 +35,19 @@ const App = () =>{
 
   return(
     <>
+      <Localei18n />
       <StatusBar barStyle="dark-content" />
       <Routes/>
     </>
   )
 }
 
-export default withAuthenticator(App)
+const signUpConfig = {
+  defaultCountryCode: '55',
+};
+
+export default withAuthenticator(App,{
+  includeGreetings:true,
+  usernameAttributes:"CPF",
+  signUpConfig
+})
